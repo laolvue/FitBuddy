@@ -4,25 +4,16 @@ import { TextInput, Text, View, StyleSheet, TouchableOpacity , Dimensions } from
 import LinearGradient from 'react-native-linear-gradient';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import MaterialIcon from 'react-native-vector-icons/MaterialCommunityIcons';
-import * as Animatable from 'react-native-animatable';
 import auth from '@react-native-firebase/auth';
 
 
-const SplashScreen = ({navigation}) => {
-    
+
+const PasswordResetScreen = ({navigation}) => {
+
     const [data,setData] = React.useState({
-        textChange: false,
-        secureTextEntry: true,
         email: '',
-        password: ''
+        textChange: false,
     });
-    
-    const toggleSecureText = () => {
-        setData({
-            ...data,
-            secureTextEntry: !data.secureTextEntry
-        })
-    }
     
     const textInputChange = (val) => {
         if(val.length > 0){
@@ -40,44 +31,32 @@ const SplashScreen = ({navigation}) => {
             })
     }
 
-    const passwordInputChange = (val) => {
-        setData({
-            ...data,
-            password: val
-        });
-    }
-
-    const loginUser = (userEmail, userPassword) => {
-
+    const resetPassword = (userEmail) => {
         auth()
-        .signInWithEmailAndPassword(userEmail, userPassword)
+        .sendPasswordResetEmail(userEmail)
         .then(() => {
-            console.log('User Logged In');
+            alert("Check your email")
+            navigation.navigate('SplashScreen')
         })
         .catch(error => {
             if (error.code === 'auth/invalid-email') {
-                alert("The email address is invalid");
+                alert('That email address is invalid!');
             }
-
             else if (error.code === 'auth/user-not-found') {
                 alert("User credentials incorrect. Please try again.");
             }
-
             else{
-                console.log(error);
+                console.error(error);
             }
         });
     }
+
 
     return(
         <View style={styles.container}>
             <LinearGradient colors={['#1fcc87', '#0d6ad4']} style={styles.linearGradient}>
                 <View style={styles.header}>
-                    <Animatable.Image animation="fadeInLeftBig" duration={3000}
-                        style={styles.logo}
-                        source= {require('../images/logo.png')}
-                        resizeMode="stretch"
-                    />
+                    <Text style={styles.headerText}>Forgot your password?</Text>
                 </View>
                 <View style={styles.footer}>
                     <View style={styles.input}>
@@ -95,40 +74,9 @@ const SplashScreen = ({navigation}) => {
                             null
                         }
                     </View>
-                    <View style={[styles.input, {marginTop: 20, marginLeft: -4}]}>
-                        <MaterialIcon name="lock-outline" size={30} color="#d3d7db" style={styles.icon}/>
-                        <TextInput
-                            placeholder= "Password"
-                            placeholderTextColor= "#d3d7db"
-                            style={styles.textInput}
-                            autoCapitalize='none'
-                            secureTextEntry= {data.secureTextEntry}
-                            onChangeText={(val) => passwordInputChange(val)}
-                        />
-                        <TouchableOpacity onPress={()=> toggleSecureText()}>
-                            {data.secureTextEntry ?
-                                <MaterialIcon name="eye-off" size={25} color="#d3d7db"/>
-                            :
-                                <MaterialIcon name="eye" size={25} color="#d3d7db"/>
-                            }
-                        </TouchableOpacity>
-                    </View>
                     <View style={{marginTop: 20}}>
-                        <TouchableOpacity style={styles.button} onPress={()=> {loginUser(data.email,data.password)}}>
-                                <Text style={styles.buttonText}>Login</Text>
-                        </TouchableOpacity>
-                    </View>
-                    <View style={{marginTop: 20}}>
-                        <TouchableOpacity onPress={()=> {navigation.navigate('PasswordResetScreen')}}>
-                        <Text style={{color: '#d3d7db'}}>Forgot Your Password?</Text>
-                        </TouchableOpacity>
-                    </View>
-                    <View style={{marginTop: 170}}>
-                        <Text style={{color: '#d3d7db'}}>Don't Have an Account?</Text>
-                    </View>
-                    <View style={{marginTop: 20}}>
-                        <TouchableOpacity style={styles.button} onPress={()=> {navigation.navigate('RegisterScreen')}}>
-                                <Text style={styles.buttonText}>Register Now</Text>
+                        <TouchableOpacity style={styles.button} onPress={()=> {resetPassword(data.email)}}>
+                                <Text style={styles.buttonText}>Send a password reset email</Text>
                         </TouchableOpacity>
                     </View>
                 </View>
@@ -142,12 +90,18 @@ const height_logo = height * 0.28;
 
 const styles = StyleSheet.create({
     container: {
-        flex: 1,
+        flex:1,
+    },
+    headerText: {
+        fontWeight: 'bold',
+        marginTop: 130,
+        fontSize: 35,
+        marginLeft: 30,
+        color: '#d3d7db'
     },
     linearGradient: {
         flex: 1,
-        justifyContent: 'center',
-        alignItems: 'center'
+        height: '100%'
     },
     logo: {
         width: height_logo,
@@ -155,7 +109,7 @@ const styles = StyleSheet.create({
     },
     header: {
         flex: 1,
-        marginTop: 60
+        marginTop: 60,
     },
     footer: {
         flex: 2,
@@ -172,7 +126,8 @@ const styles = StyleSheet.create({
         flexDirection: 'row',
         borderBottomWidth: 1,
         borderColor: "#d3d7db",
-        width: 350
+        width: 350,
+        marginTop: 25
     },
     button: {
         width: 350,
@@ -191,4 +146,4 @@ const styles = StyleSheet.create({
     }
 });
 
-export default SplashScreen;
+export default PasswordResetScreen;
